@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Event Registration System</title>
+  <style>
+    :root {
+      --color-white: rgba(255, 255, 255, 1);
+      --color-cream-50: rgba(252, 252, 249, 1);
+      --color-cream-100: rgba(255, 255, 253, 1);
+      --color-gray-200: rgba(245, 245, 245, 1);
+      --color-slate-500: rgba(98, 108, 113, 1);
+      --color-slate-900: rgba(19, 52, 59, 1);
+      --color-teal-300: rgba(50, 184, 198, 1);
+      --color-teal-500: rgba(33, 128, 141, 1);
+      --color-teal-600: rgba(29, 116, 128, 1);
+      --color-teal-700: rgba(26, 104, 115, 1);
+      --color-brown-600-rgb: 94, 82, 64;
+      --color-teal-500-rgb: 33, 128, 141;
+      
+      --color-background: var(--color-cream-50);
+      --color-surface: var(--color-cream-100);
+      --color-text: var(--color-slate-900);
+      --color-text-secondary: var(--color-slate-500);
+      --color-primary: var(--color-teal-500);
+      --color-primary-hover: var(--color-teal-600);
+      --color-primary-active: var(--color-teal-700);
+      --color-border: rgba(var(--color-brown-600-rgb), 0.2);
+      --color-card-border: rgba(var(--color-brown-600-rgb), 0.12);
+      --radius-sm: 6px;
+      --radius-base: 8px;
+      --radius-lg: 12px;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+      --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --gradient-hero: linear-gradient(135deg, rgba(33, 128, 141, 0.95) 0%, rgba(26, 104, 115, 0.98) 100%);
+      --gradient-card: linear-gradient(145deg, rgba(255, 255, 253, 0.9) 0%, rgba(252, 252, 249, 0.95) 100%);
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-charcoal-700: rgba(31, 33, 33, 1);
+        --color-charcoal-800: rgba(38, 40, 40, 1);
+        --color-gray-300: rgba(167, 169, 169, 1);
+        --color-gray-400-rgb: 119, 124, 124;
+        --color-teal-300-rgb: 50, 184, 198;
+        
+        --color-background: var(--color-charcoal-700);
+        --color-surface: var(--color-charcoal-800);
+        --color-text: var(--color-gray-200);
+        --color-text-secondary: rgba(167, 169, 169, 0.7);
+        --color-primary: var(--color-teal-300);
+        --color-primary-hover: rgba(50, 184, 198, 0.9);
+        --color-border: rgba(var(--color-gray-400-rgb), 0.3);
+        --color-card-border: rgba(var(--color-gray-400-rgb), 0.2);
+        --gradient-hero: linear-gradient(135deg, rgba(50, 184, 198, 0.2) 0%, rgba(33, 128, 141, 0.3) 100%);
+        --gradient-card: linear-gradient(145deg, rgba(38, 40, 40, 0.9) 0%, rgba(31, 33, 33, 0.95) 100%);
+      }
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      margin: 0;
+      font-family: var(--font-family-base);
+      background: var(--color-background);
+      color: var(--color-text);
+      min-height: 100vh;
+      letter-spacing: -0.01em;
+      line-height: 1.6;
+    }
+    
+    .hero {
+      background: var(--gradient-hero);
+      padding: 60px 20px;
+      text-align: center;
+      color: white;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: pulse 8s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.3; }
+      50% { transform: scale(1.1) rotate(5deg); opacity: 0.5; }
+    }
+    
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .hero h1 {
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .hero p {
+      font-size: 20px;
+      opacity: 0.95;
+      max-width: 600px;
+      margin: 0 auto 24px;
+    }
+    
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+    
+    .stat-item {
+      text-align: center;
+    }
+    
+    .stat-number {
+      font-size: 36px;
+      font-weight: 700;
+      display: block;
+    }
+    
+    .stat-label {
+      font-size: 14px;
+      opacity: 0.9;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    
+    .form-container {
+      max-width: 480px;
+      margin: 32px auto;
+      background: var(--gradient-card);
+      border: 1px solid var(--color-card-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: 40px 32px;
+      backdrop-filter: blur(10px);
+    }
+    h1, h2 {
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 24px;
+      color: var(--color-text);
+    }
+    
+    h2 {
+      font-size: 28px;
+    }
+    
+    h3 {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: 20px;
+    }
+    
+    .nav {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 32px;
+      padding: 8px;
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .nav button {
+      background: transparent;
+      color: var(--color-text);
+      border: none;
+      border-radius: var(--radius-base);
+      font-size: 15px;
+      font-weight: 500;
+      padding: 12px 24px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      flex: 1;
+    }
+    
+    .nav button:hover {
+      background: rgba(var(--color-teal-500-rgb), 0.1);
+      color: var(--color-primary);
+    }
+    
+    .nav button.active {
+      background: var(--color-primary);
+      color: white;
+      box-shadow: var(--shadow-sm);
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-top: 24px;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: 4px;
+    }
+    
+    input, select, textarea {
+      padding: 12px 16px;
+      font-size: 16px;
+      font-family: var(--font-family-base);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-base);
+      background: var(--color-surface);
+      color: var(--color-text);
+      transition: all 0.3s ease;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(var(--color-teal-500-rgb), 0.1);
+    }
+    
+    input:hover, select:hover, textarea:hover {
+      border-color: var(--color-primary-hover);
+    }
+    .btn {
+      background: var(--color-primary);
+      color: white;
+      font-weight: 600;
+      padding: 14px 24px;
+      font-size: 16px;
+      border: none;
+      border-radius: var(--radius-base);
+      cursor: pointer;
+      margin-top: 8px;
+      box-shadow: var(--shadow-md);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+    
+    .btn:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+    
+    .btn:hover {
+      background: var(--color-primary-hover);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+    }
+    
+    .btn-secondary {
+      background: transparent;
+      border: 2px solid var(--color-primary);
+      color: var(--color-primary);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--color-primary);
+      color: white;
+    }
+    .success, .error {
+      padding: 10px;
+      border-radius: var(--radius-base);
+      text-align: center;
+      margin: 8px 0;
+      font-size: 15px;
+    }
+    .success {
+      background: #daf0ee;
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
+    }
+    .error {
+      background: #fbebeb;
+      color: #c0152f;
+      border: 1px solid #c0152f;
+    }
+    .event-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+      margin-top: 32px;
+    }
+    
+    .event-card {
+      background: var(--gradient-card);
+      border: 1px solid var(--color-card-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: 24px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .event-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-teal-700));
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+    
+    .event-card:hover::before {
+      transform: scaleX(1);
+    }
+    
+    .event-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .event-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      background: rgba(var(--color-teal-500-rgb), 0.1);
+      color: var(--color-primary);
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+    
+    .event-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--color-text);
+    }
+    
+    .event-date {
+      color: var(--color-primary);
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .event-desc {
+      color: var(--color-text-secondary);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    
+    .event-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--color-card-border);
+      font-size: 13px;
+      color: var(--color-text-secondary);
+    }
+    
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+      margin: 40px 0;
+    }
+    
+    .feature-card {
+      text-align: center;
+      padding: 32px 24px;
+      background: var(--gradient-card);
+      border: 1px solid var(--color-card-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s ease;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .feature-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+    
+    .feature-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--color-text);
+    }
+    
+    .feature-desc {
+      font-size: 14px;
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+    }
+    
+    .header {
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-card-border);
+      box-shadow: var(--shadow-sm);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+    
+    .header-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--color-text);
+      text-decoration: none;
+    }
+    
+    .logo-icon {
+      font-size: 28px;
+    }
+    
+    .logo-text {
+      background: linear-gradient(135deg, var(--color-primary), var(--color-teal-700));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .header-nav {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+      flex: 1;
+      justify-content: center;
+    }
+    
+    .nav-link {
+      color: var(--color-text-secondary);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      padding: 8px 0;
+      border-bottom: 2px solid transparent;
+    }
+    
+    .nav-link:hover {
+      color: var(--color-primary);
+    }
+    
+    .nav-link.active {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+    }
+    
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    
+    .btn-header {
+      background: transparent;
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+      padding: 8px 20px;
+      border-radius: var(--radius-base);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-header:hover {
+      background: var(--color-secondary);
+      border-color: var(--color-primary);
+    }
+    
+    .btn-header-primary {
+      background: var(--color-primary);
+      color: white;
+      border: none;
+      padding: 10px 24px;
+    }
+    
+    .btn-header-primary:hover {
+      background: var(--color-primary-hover);
+      transform: translateY(-1px);
+    }
+    
+    .page-content {
+      min-height: calc(100vh - 200px);
+    }
+    
+    .footer {
+      background: var(--color-surface);
+      border-top: 1px solid var(--color-card-border);
+      margin-top: 80px;
+      padding: 48px 0 24px;
+    }
+    
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+    
+    .footer-section {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .footer-desc {
+      color: var(--color-text-secondary);
+      font-size: 14px;
+      line-height: 1.6;
+      margin: 0;
+    }
+    
+    .footer-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: 4px;
+    }
+    
+    .footer-links {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .footer-links a {
+      color: var(--color-text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.3s ease;
+    }
+    
+    .footer-links a:hover {
+      color: var(--color-primary);
+    }
+    
+    .social-links {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    
+    .social-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: rgba(var(--color-teal-500-rgb), 0.1);
+      border-radius: var(--radius-base);
+      font-size: 18px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    
+    .social-link:hover {
+      background: var(--color-primary);
+      transform: translateY(-2px);
+    }
+    
+    .footer-bottom {
+      padding-top: 24px;
+      border-top: 1px solid var(--color-card-border);
+      text-align: center;
+    }
+    
+    .footer-bottom p {
+      color: var(--color-text-secondary);
+      font-size: 14px;
+      margin: 0;
+    }
+    
+    @media (max-width: 768px) {
+      .header-nav {
+        display: none;
+      }
+      
+      .header-container {
+        padding: 12px 16px;
+      }
+      
+      .logo-text {
+        font-size: 18px;
+      }
+      
+      .btn-header, .btn-header-primary {
+        padding: 8px 16px;
+        font-size: 13px;
+      }
+      
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+      
+      .hero h1 {
+        font-size: 36px;
+      }
+      
+      .hero p {
+        font-size: 16px;
+      }
+      
+      .stats {
+        gap: 24px;
+      }
+      
+      .stat-number {
+        font-size: 28px;
+      }
+      
+      .container {
+        padding: 24px 16px;
+      }
+      
+      .form-container {
+        padding: 32px 24px;
+      }
+      
+      .nav {
+        gap: 6px;
+        padding: 6px;
+      }
+      
+      .nav button {
+        padding: 10px 16px;
+        font-size: 14px;
+      }
+      
+      .event-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    /*🏷️ Add scroll and safe area for mobile */
+    html {
+      box-sizing: border-box;
+      -webkit-text-size-adjust: 100%;
+      -webkit-tap-highlight-color: transparent;
+    }
+    ::selection {
+      background: #e4f8f7;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-container">
+      <div class="logo">
+        <span class="logo-icon">🎯</span>
+        <span class="logo-text">EventPro</span>
+      </div>
+      <nav class="header-nav">
+        <a href="#" onclick="showPage('landing'); return false;" class="nav-link active" id="nav-landing">Home</a>
+        <a href="#" onclick="showPage('events'); return false;" class="nav-link" id="nav-events">Events</a>
+        <a href="#" onclick="showPage('about'); return false;" class="nav-link" id="nav-about">About</a>
+      </nav>
+      <div class="header-actions">
+        <button class="btn-header" onclick="showPage('login')">Login</button>
+        <button class="btn btn-header-primary" onclick="showPage('register')">Sign Up</button>
+      </div>
+    </div>
+  </header>
+
+  <div id="app">
+    <!-- Landing Page -->
+    <div id="page-landing" class="page-content">
+      <!-- Hero Section -->
+      <div class="hero">
+        <div class="hero-content">
+          <h1>🎯 EventPro</h1>
+          <p>Discover, Register, and Manage Your Events All in One Place</p>
+          <div class="stats">
+            <div class="stat-item">
+              <span class="stat-number" id="total-events">12</span>
+              <span class="stat-label">Active Events</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number" id="total-users">250+</span>
+              <span class="stat-label">Registered Users</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number" id="total-registrations">500+</span>
+              <span class="stat-label">Event Registrations</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="container">
+        <div style="text-align:center; margin-bottom: 40px;">
+          <h2>Why Choose EventPro?</h2>
+          <p style="color: var(--color-text-secondary); max-width: 600px; margin: 16px auto;">
+            The ultimate platform for discovering and managing tech events, workshops, and hackathons tailored for developers and innovators.
+          </p>
+        </div>
+        
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🚀</div>
+            <div class="feature-title">Easy Registration</div>
+            <div class="feature-desc">Sign up in seconds and start exploring amazing events curated for tech enthusiasts.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📅</div>
+            <div class="feature-title">Event Management</div>
+            <div class="feature-desc">Keep track of all your registered events in one centralized dashboard.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🏆</div>
+            <div class="feature-title">Premium Events</div>
+            <div class="feature-desc">Access exclusive hackathons, workshops, and networking opportunities.</div>
+          </div>
+        </div>
+        
+        <div style="margin-top: 48px;">
+          <h2>Upcoming Events</h2>
+          <div id="event-list">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Registration Page -->
+    <div id="page-register" class="page-content" style="display:none;">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-container">
+          <div class="logo">
+            <span class="logo-icon">🎯</span>
+            <span class="logo-text">EventPro</span>
+          </div>
+          <nav class="header-nav">
+            <a href="#" onclick="showPage('landing'); return false;" class="nav-link" id="nav-landing-reg">Home</a>
+            <a href="#" onclick="showPage('events'); return false;" class="nav-link" id="nav-events-reg">Events</a>
+            <a href="#" onclick="showPage('about'); return false;" class="nav-link" id="nav-about-reg">About</a>
+          </nav>
+          <div class="header-actions">
+            <button class="btn-header" onclick="showPage('login')">Login</button>
+          </div>
+        </div>
+      </header>
+      <div class="form-container">
+        <h2>Create Your Account</h2>
+        <p style="text-align:center; color: var(--color-text-secondary); margin-bottom: 24px;">Join EventPro and unlock access to exclusive tech events</p>
+        <form id="register-form" autocomplete="off" onsubmit="registerUser(event)">
+          <div class="form-group">
+            <label for="reg-name">Full Name</label>
+            <input id="reg-name" name="name" type="text" required maxlength="40" placeholder="Enter your full name" />
+          </div>
+          <div class="form-group">
+            <label for="reg-email">Email Address</label>
+            <input id="reg-email" name="email" type="email" required maxlength="50" placeholder="your.email@example.com" />
+          </div>
+          <div class="form-group">
+            <label for="reg-password">Password</label>
+            <input id="reg-password" name="password" type="password" required minlength="6" maxlength="20" placeholder="At least 6 characters" />
+          </div>
+          <div class="form-group">
+            <label for="reg-role">I am a</label>
+            <select id="reg-role" name="role" required>
+              <option value="">Select your role</option>
+              <option value="student">Student</option>
+              <option value="developer">Developer</option>
+              <option value="designer">Designer</option>
+              <option value="entrepreneur">Entrepreneur</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <button type="submit" class="btn">Create Account</button>
+        </form>
+        <div id="register-status"></div>
+        <p style="text-align:center; margin-top: 20px; font-size: 14px; color: var(--color-text-secondary);">
+          Already have an account? <a href="#" onclick="showPage('login'); return false;" style="color: var(--color-primary); font-weight: 600;">Login here</a>
+        </p>
+      </div>
+    </div>
+    
+    <!-- Login Page -->
+    <div id="page-login" class="page-content" style="display:none;">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-container">
+          <div class="logo">
+            <span class="logo-icon">🎯</span>
+            <span class="logo-text">EventPro</span>
+          </div>
+          <nav class="header-nav">
+            <a href="#" onclick="showPage('landing'); return false;" class="nav-link" id="nav-landing-login">Home</a>
+            <a href="#" onclick="showPage('events'); return false;" class="nav-link" id="nav-events-login">Events</a>
+            <a href="#" onclick="showPage('about'); return false;" class="nav-link" id="nav-about-login">About</a>
+          </nav>
+          <div class="header-actions">
+            <button class="btn btn-header-primary" onclick="showPage('register')">Sign Up</button>
+          </div>
+        </div>
+      </header>
+      <div class="form-container">
+        <h2>Welcome Back!</h2>
+        <p style="text-align:center; color: var(--color-text-secondary); margin-bottom: 24px;">Login to access your event dashboard</p>
+        <form id="login-form" autocomplete="off" onsubmit="loginUser(event)">
+          <div class="form-group">
+            <label for="login-email">Email Address</label>
+            <input id="login-email" name="email" type="email" required maxlength="50" placeholder="your.email@example.com" />
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input id="login-password" name="password" type="password" required minlength="6" maxlength="20" placeholder="Enter your password" />
+          </div>
+          <button type="submit" class="btn">Login to Dashboard</button>
+        </form>
+        <div id="login-status"></div>
+        <p style="text-align:center; margin-top: 20px; font-size: 14px; color: var(--color-text-secondary);">
+          Don't have an account? <a href="#" onclick="showPage('register'); return false;" style="color: var(--color-primary); font-weight: 600;">Register now</a>
+        </p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-grid">
+        <div class="footer-section">
+          <div class="footer-logo">
+            <span class="logo-icon">🎯</span>
+            <span class="logo-text">EventPro</span>
+          </div>
+          <p class="footer-desc">Your trusted platform for discovering and managing tech events, workshops, and hackathons.</p>
+          <div class="social-links">
+            <a href="#" class="social-link">🐦</a>
+            <a href="#" class="social-link">💼</a>
+            <a href="#" class="social-link">📸</a>
+            <a href="#" class="social-link">📘</a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <h4 class="footer-title">Quick Links</h4>
+          <ul class="footer-links">
+            <li><a href="#" onclick="showPage('landing'); return false;">Home</a></li>
+            <li><a href="#" onclick="showPage('events'); return false;">Events</a></li>
+            <li><a href="#" onclick="showPage('about'); return false;">About Us</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4 class="footer-title">Resources</h4>
+          <ul class="footer-links">
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Help Center</a></li>
+            <li><a href="#">Community</a></li>
+            <li><a href="#">FAQs</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4 class="footer-title">Legal</h4>
+          <ul class="footer-links">
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="#">Cookie Policy</a></li>
+            <li><a href="#">Refund Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 EventPro. All rights reserved. Built with ❤️ for the tech community.</p>
+      </div>
+    </div>
+  </footer>
+  
+  <script>
+    // State variables - no storage, just in-memory
+    let users = []; // { name, email, password, role, registrations: [] }
+    let loggedUser = null;
+    let eventStats = { totalEvents: 12, totalUsers: 0, totalRegistrations: 0 };
+
+    function showPage(page) {
+      // Hide all pages
+      const pages = ['landing', 'register', 'login'];
+      pages.forEach(p => {
+        const pageEl = document.getElementById('page-' + p);
+        if (pageEl) pageEl.style.display = 'none';
+      });
+      
+      // Show selected page
+      const selectedPage = document.getElementById('page-' + page);
+      if (selectedPage) selectedPage.style.display = 'block';
+      
+      // Update nav active states
+      document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+      const activeLinks = document.querySelectorAll('#nav-' + page);
+      activeLinks.forEach(link => link.classList.add('active'));
+      
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      if (page === "landing") updateEventList();
+    }
+
+    function registerUser(e) {
+      e.preventDefault();
+      const name = document.getElementById('reg-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim().toLowerCase();
+      const password = document.getElementById('reg-password').value;
+      const role = document.getElementById('reg-role').value;
+      const statusEl = document.getElementById('register-status');
+      statusEl.textContent = "";
+      
+      // Validation
+      if (users.some(u => u.email === email)) {
+        showStatus(statusEl, "⚠️ Email already registered. Please login instead.", "error");
+        return;
+      }
+      
+      if (!role) {
+        showStatus(statusEl, "⚠️ Please select your role.", "error");
+        return;
+      }
+      
+      // Register
+      users.push({ name, email, password, role, registrations: [] });
+      eventStats.totalUsers = users.length;
+      updateStats();
+      showStatus(statusEl, "✅ Registration successful! Redirecting to login...", "success");
+      document.getElementById('register-form').reset();
+      setTimeout(() => { showPage('login'); }, 1500);
+    }
+
+    function loginUser(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim().toLowerCase();
+      const password = document.getElementById('login-password').value;
+      const statusEl = document.getElementById('login-status');
+      statusEl.textContent = "";
+      
+      const user = users.find(u => u.email === email && u.password === password);
+      if (user) {
+        loggedUser = user;
+        showStatus(statusEl, "✅ Login successful! Welcome back, " + user.name.split(' ')[0] + "!", "success");
+        setTimeout(() => { showPage('landing'); }, 1200);
+      } else {
+        showStatus(statusEl, "❌ Invalid email or password. Please try again.", "error");
+      }
+      document.getElementById('login-form').reset();
+    }
+
+    // Event registration example (events static for demo)
+    const sampleEvents = [
+      { 
+        name: "Global Hackathon 2025", 
+        date: "2025-11-30", 
+        category: "Hackathon",
+        desc: "Join 500+ developers in a 48-hour coding marathon. Build innovative solutions and compete for prizes worth $50,000!",
+        seats: "250 seats",
+        location: "Online"
+      },
+      { 
+        name: "AI & Machine Learning Workshop", 
+        date: "2025-12-10", 
+        category: "Workshop",
+        desc: "Deep dive into neural networks, NLP, and computer vision with industry experts from Google and Microsoft.",
+        seats: "100 seats",
+        location: "Hybrid"
+      },
+      { 
+        name: "Web Development Summit 2025", 
+        date: "2025-12-15", 
+        category: "Conference",
+        desc: "Explore the latest in React, Next.js, and full-stack development. Network with top developers and tech leaders.",
+        seats: "300 seats",
+        location: "Bangalore, India"
+      },
+      { 
+        name: "Startup Pitch Competition", 
+        date: "2025-12-20", 
+        category: "Competition",
+        desc: "Present your startup idea to top VCs and angel investors. Winners get funding and mentorship opportunities.",
+        seats: "50 teams",
+        location: "Online"
+      },
+      { 
+        name: "Cloud Computing Masterclass", 
+        date: "2025-12-28", 
+        category: "Workshop",
+        desc: "Learn AWS, Azure, and GCP from certified cloud architects. Get hands-on with real-world projects.",
+        seats: "150 seats",
+        location: "Online"
+      },
+      { 
+        name: "Design Thinking Workshop", 
+        date: "2026-01-05", 
+        category: "Workshop",
+        desc: "Master the art of UX/UI design and product thinking. Create portfolio-worthy projects with expert guidance.",
+        seats: "80 seats",
+        location: "Mumbai, India"
+      },
+    ];
+
+    function updateEventList() {
+      const eventList = document.getElementById('event-list');
+      eventList.innerHTML = "";
+      
+      // Not logged in
+      if (!loggedUser) {
+        eventList.innerHTML = `
+          <div style="text-align:center; padding: 40px 20px; background: var(--gradient-card); border-radius: var(--radius-lg); border: 1px solid var(--color-card-border);">
+            <div style="font-size: 48px; margin-bottom: 16px;">🔐</div>
+            <h3 style="margin-bottom: 12px;">Login Required</h3>
+            <p style="color: var(--color-text-secondary); margin-bottom: 24px;">Please login or register to view and sign up for exciting events.</p>
+            <button class="btn" onclick="showPage('login')">Login Now</button>
+            <button class="btn btn-secondary" onclick="showPage('register')" style="margin-left: 12px;">Create Account</button>
+          </div>
+        `;
+        return;
+      }
+      
+      // Show events user can register
+      eventList.innerHTML = '<div class="event-grid"></div>';
+      const grid = eventList.querySelector('.event-grid');
+      
+      sampleEvents.forEach((evt, idx) => {
+        const registered = loggedUser.registrations.includes(idx);
+        const card = document.createElement('div');
+        card.className = 'event-card';
+        card.innerHTML = `
+          <div class="event-badge">${evt.category}</div>
+          <div class="event-title">${evt.name}</div>
+          <div class="event-date">📅 ${evt.date}</div>
+          <div class="event-desc">${evt.desc}</div>
+          <div class="event-meta">
+            <span>👥 ${evt.seats}</span>
+            <span>📍 ${evt.location}</span>
+          </div>
+          <div style="margin-top: 16px;">
+            ${registered
+              ? `<span class="success" style="width: 100%; display: block; text-align: center;">✅ Registered</span>`
+              : `<button class="btn" style="width: 100%;" onclick="registerEvent(${idx})">Register Now</button>`
+            }
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function registerEvent(eventIdx) {
+      if (loggedUser && !loggedUser.registrations.includes(eventIdx)) {
+        loggedUser.registrations.push(eventIdx);
+        eventStats.totalRegistrations++;
+        updateStats();
+        updateEventList();
+        
+        // Show success animation
+        const event = sampleEvents[eventIdx];
+        alert(`🎉 Success! You're registered for "${event.name}". Check your email for confirmation details.`);
+      }
+    }
+
+    function showStatus(el, msg, type) {
+      el.innerHTML = `<div class="${type}">${msg}</div>`;
+      setTimeout(() => { el.innerHTML = ""; }, 4000);
+    }
+    
+    function updateStats() {
+      document.getElementById('total-events').textContent = eventStats.totalEvents;
+      document.getElementById('total-users').textContent = eventStats.totalUsers + '+';
+      document.getElementById('total-registrations').textContent = eventStats.totalRegistrations + '+';
+    }
+
+    // On load, default to landing page
+    updateEventList();
+    updateStats();
+  </script>
+</body>
+</html>
